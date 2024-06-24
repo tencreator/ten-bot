@@ -29,7 +29,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('kick')
-                .setDescription('Replies with Help!')
+                .setDescription('Kicks a specified user!')
                 .addUserOption(option =>
                     option.setName('user')
                         .setDescription('The user to kick')
@@ -44,7 +44,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('timeout')
-                .setDescription('Replies with Help!')
+                .setDescription('Timesout a specified user!')
                 .addUserOption(option =>
                     option.setName('user')
                         .setDescription('The user to timeout')
