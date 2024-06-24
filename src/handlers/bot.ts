@@ -12,7 +12,6 @@ class BotHandler {
     private readonly eventsPath = path.join(__dirname, '../events')
     private readonly commandsPath = path.join(__dirname, '../commands')
 
-
     constructor() {
         this.client = new Client({
             allowedMentions: {
