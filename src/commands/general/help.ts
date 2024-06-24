@@ -20,7 +20,7 @@ export default async function help(interaction: any, commands: Collection<string
         .setDescription('A list of all available commands.')
         .addFields(fields)
         .setTimestamp()
-        .setFooter({text: 'Bot made by TenCreator'})
+        .setFooter({ text: 'Bot maintainted and developed by TenCreator' })
 
     await interaction.reply({ embeds: [embed] })
 }
