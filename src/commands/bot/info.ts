@@ -87,10 +87,10 @@ function createEmbed(bot: BotInfo, system: SystemInfo) {
     fields.push({ name: 'Platform', value: system.platform, inline: true })
     fields.push({ name: 'Memory Usage', value: system.memoryUsage, inline: true })
     fields.push({ name: '\u200b', value: '\u200b', inline: true })
-    fields.push({ name: 'Links', value: `[Invite Me](https://discord.com/oauth2/authorize?client_id=${bot.id}&permissions=8&scope=applications.commands%20bot) | [Support Server](https://discord.gg/blrp) | [GitHub](https://github.com/tencreator/ten-bot)`})
+    fields.push({ name: 'Links', value: `[Invite Me](https://discord.com/oauth2/authorize?client_id=${bot.id}&permissions=8&scope=applications.commands%20bot) | [Support Server](https://discord.gg/9SRJhAGqbZ) | [GitHub](https://github.com/tencreator/ten-bot)`})
 
     return new EmbedBuilder()
-        .setTitle('|・Bot information')
+        .setTitle('ⓘ・Bot information')
         .setColor('Blue')
         .addFields(fields)
         .setFooter({ text: 'Bot maintainted and developed by TenCreator' })
