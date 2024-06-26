@@ -4,6 +4,7 @@ import log from "../../utils/log"
 
 export default async function timeout(interaction: any, logger: log) {
     const user = interaction.options.getUser('user')
+    const time = interaction.options.getNumber('time')
     const reason = interaction.options.getString('reason') || 'No reason provided'
     const response: string[] = []
     
@@ -28,17 +29,17 @@ export default async function timeout(interaction: any, logger: log) {
         return staff.send({ embeds: [embed] })
     }
 
-    const logEmbed = await createLogEmbed(staff, member, reason, interaction.guild)
-    const memberEmbed = await createMemberEmbed(staff, member, reason, interaction.guild)
+    const logEmbed = await createLogEmbed(staff, member, reason, time, interaction.guild)
+    const memberEmbed = await createMemberEmbed(staff, reason, time, interaction.guild)
 
     await member.send({ embeds: [memberEmbed] })
-    await member.kick(reason + ' - Timed out by ' + staff.user.displayName)
+    await member.timeout(time * 60_000, reason + ' - ' + staff.displayName)
 
     await logChannel.send({ embeds: [logEmbed] })
     await interaction.reply({ content: 'User has been timed out', ephemeral: true, embeds: [logEmbed] })
 }
 
-async function createLogEmbed(staff: GuildMember, member: GuildMember, reason: string, guild: Guild): Promise<EmbedBuilder> {
+async function createLogEmbed(staff: GuildMember, member: GuildMember, reason: string, time: number, guild: Guild): Promise<EmbedBuilder> {
     const fields: { name: string, value: string, inline?: boolean }[] = []
 
     const title = '{{TIMED_OUT_CLOCK}} **{{TIMED_OUT_NAME}}** has been timed out on **{{GUILD_NAME}}** by **{{STAFF_NAME}}** {{TIMED_OUT_CLOCK}}'
@@ -47,13 +48,18 @@ async function createLogEmbed(staff: GuildMember, member: GuildMember, reason: s
         .replaceAll('{{STAFF_NAME}}', staff.displayName)
         .replaceAll('{{TIMED_OUT_CLOCK}}', '🕒')
     
+    fields.push({ name: '**Member Information**', value: '\u200b', inline: false})
     fields.push({ name: 'Timed out Member', value: `<@${member.id}>`, inline: true })
     fields.push({ name: 'Display Name', value: member.displayName, inline: true })
     fields.push({ name: 'ID', value: member.id, inline: true })
+    fields.push({ name: '\u200b\n**Staff Information**', value: '\u200b', inline: false })
     fields.push({ name: 'Timeouted By', value: `<@${staff.id}>`, inline: true })
     fields.push({ name: 'Display Name', value: staff.displayName, inline: true })
     fields.push({ name: 'ID', value: staff.id, inline: true })
-    fields.push({ name: 'Reason', value: reason, inline: false })
+    fields.push({ name: '\u200b\n**Punishment Details**', value: '\u200b', inline: false})
+    fields.push({ name: 'Reason', value: reason, inline: true })
+    fields.push({ name: 'Duration', value: `${time} Minutes`, inline: true })
+    fields.push({ name: '\u200b', value: '\u200b', inline: true})
 
     const embed = new EmbedBuilder()
         .setColor('Orange')
@@ -66,7 +72,7 @@ async function createLogEmbed(staff: GuildMember, member: GuildMember, reason: s
     return embed
 }
 
-async function createMemberEmbed(staff: GuildMember, member: GuildMember, reason: string, guild: Guild): Promise<EmbedBuilder> {
+async function createMemberEmbed(staff: GuildMember, reason: string, time: number, guild: Guild): Promise<EmbedBuilder> {
     const title = 'You have been timed out on **{{GUILD_NAME}}** by **{{STAFF_NAME}}** {{TIMED_OUT_CLOCK}}'
         .replaceAll('{{GUILD_NAME}}', guild.name)
         .replaceAll('{{STAFF_NAME}}', staff.displayName)
@@ -77,7 +83,9 @@ async function createMemberEmbed(staff: GuildMember, member: GuildMember, reason
     fields.push({ name: 'Timed out By', value: `<@${staff.id}>`, inline: true })
     fields.push({ name: 'Display Name', value: staff.displayName, inline: true })
     fields.push({ name: 'ID', value: staff.id, inline: true })
-    fields.push({ name: 'Reason', value: reason, inline: false })
+    fields.push({ name: 'Reason', value: reason, inline: true })
+    fields.push({ name: 'Duration', value: `${time} Minutes`, inline: true })
+    fields.push({ name: '\u200b', value: '\u200b', inline: true})
     
     const embed = new EmbedBuilder()
         .setColor('Red')
