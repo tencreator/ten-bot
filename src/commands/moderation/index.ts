@@ -50,6 +50,11 @@ module.exports = {
                         .setDescription('The user to timeout')
                         .setRequired(true)
                 )
+                .addNumberOption(option =>
+                    option.setName('time')
+                        .setDescription('The time to timeout the user (Minutes)')
+                        .setRequired(true)
+                )
                 .addStringOption(option =>
                     option.setName('reason')
                         .setDescription('The reason for timing out the user')
