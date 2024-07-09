@@ -17,7 +17,7 @@ export default async function help(interaction: any, commands: Collection<string
 
     const embed = new EmbedBuilder()
         .setTitle('Commands')
-        .setDescription('A list of all available commands.')
+        .setDescription('A list of all available commands. Total commands: ' + fields.length)
         .addFields(fields)
         .setTimestamp()
         .setFooter({ text: 'Bot maintainted and developed by TenCreator' })

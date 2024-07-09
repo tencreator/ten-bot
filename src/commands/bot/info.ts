@@ -1,5 +1,5 @@
 import { EmbedBuilder, Collection } from 'discord.js'
-import log from '../../utils/log';
+import log from '../../utils/log'
 
 interface BotInfo {
     name: string,
