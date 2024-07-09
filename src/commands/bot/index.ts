@@ -5,6 +5,7 @@ const logger = new log('Bot CMDS')
 
 import info from "./info"
 import help from "./help"
+import ping from "./ping"
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -20,6 +21,11 @@ module.exports = {
                 .setName('help')
                 .setDescription('Replies with help about the bot!')
         )
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('ping')
+                .setDescription('Replies with pong!')
+        )
     ,
 
     async execute(interaction: any, commands: Collection<string, any>) {
@@ -29,6 +35,9 @@ module.exports = {
                 break
             case 'help':
                 help(interaction, commands)
+                break
+            case 'ping':
+                ping(interaction)
                 break
             default:
                 interaction.reply('Unknown subcommand')
