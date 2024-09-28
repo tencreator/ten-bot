@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import { log } from "../utils/log"
+import { discordDevDiscord, discordDevMode } from "../utils/config"
 import Actions from "./db"
 
 class BotHandler {
@@ -112,12 +113,22 @@ class BotHandler {
         try {
             this.logger.info(`Started refreshing ${commands.length} commands.`)
 
-            const data: any = await rest.put(
-                Routes.applicationGuildCommands(clientId, '1254178290915213332'),
-                { body: commands },
-            )
+            if (discordDevMode) {
+                const data: any = await rest.put(
+                    Routes.applicationGuildCommands(clientId, discordDevDiscord),
+                    { body: commands },
+                )
 
-            this.logger.info(`Successfully reloaded ${data.length} commands.`)
+                this.logger.info(`Successfully reloaded ${data.length} commands in dev mode (${discordDevDiscord}).`)
+            } else {
+                const data: any = await rest.put(
+                    Routes.applicationCommands(clientId),
+                    { body: commands },
+                )
+
+                this.logger.info(`Successfully reloaded ${data.length} commands.`)
+            }
+
         } catch (err: any) {
             this.logger.error('Failed refreshing commands.')
             this.logger.error(err.toString())
