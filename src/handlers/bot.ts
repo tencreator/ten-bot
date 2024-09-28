@@ -2,17 +2,19 @@ import { Client, Collection, Events, GatewayIntentBits, Partials } from "discord
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { discordBotToken, discordClientId } from "../utils/config"
 import { log } from "../utils/log"
+import { discordDevDiscord, discordDevMode } from "../utils/config"
+import Actions from "./db"
 
 class BotHandler {
     private client: Client
     private commands: Collection<string, any>
-    private logger: log = new log('BotHandler')
+    private logger: log;
+    private actions: Actions;
     private readonly eventsPath = path.join(__dirname, '../events')
     private readonly commandsPath = path.join(__dirname, '../commands')
 
-    constructor() {
+    constructor(log: log) {
         this.client = new Client({
             allowedMentions: {
                 parse: [
@@ -48,8 +50,10 @@ class BotHandler {
         })
 
         this.commands = new Collection()
-    
         this.client.on('error', console.error)
+    
+        this.actions = new Actions(this.client)
+        this.logger = log
     }
 
     public async initalizeCmds() {
@@ -81,8 +85,8 @@ class BotHandler {
             if ('name' in evt && 'execute' in evt){
                 this.logger.debug(`Loading event ${evt.name || event}`)
 
-                if (evt.once) this.client.once(evt.name, (...args) => evt.execute(...args, this.commands, this.logger))
-                else this.client.on(evt.name, (...args) => evt.execute(...args, this.commands, this.logger))
+                if (evt.once) this.client.once(evt.name, (...args) => evt.execute(...args, this.commands, this.logger, this.actions))
+                else this.client.on(evt.name, (...args) => evt.execute(...args, this.commands, this.logger, this.actions))
             } else {
                 this.logger.error(`Error loading event ${event}`)
             }
@@ -100,28 +104,39 @@ class BotHandler {
         await this.initalizeEvents()
     }
 
-    public async refreshCmds(){
+    public async refreshCmds(token: string, clientId: string){
         const { REST, Routes } = await import('discord.js')
-        const rest = new REST({ version: '10' }).setToken(discordBotToken)
+        const rest = new REST({ version: '10' }).setToken(token)
         if (this.commands.size === 0) await this.initalizeCmds()
         const commands = this.commands.map(cmd => cmd.data.toJSON())
 
         try {
-            this.logger.info(`Started refreshing ${commands.length} application (/) commands.`)
+            this.logger.info(`Started refreshing ${commands.length} commands.`)
 
-            const data: any = await rest.put(
-                Routes.applicationGuildCommands(discordClientId, '1254178290915213332'),
-                { body: commands },
-            )
+            if (discordDevMode) {
+                const data: any = await rest.put(
+                    Routes.applicationGuildCommands(clientId, discordDevDiscord),
+                    { body: commands },
+                )
 
-            this.logger.info(`Successfully reloaded application (/) commands. ${data.length}`)
+                this.logger.info(`Successfully reloaded ${data.length} commands in dev mode (${discordDevDiscord}).`)
+            } else {
+                const data: any = await rest.put(
+                    Routes.applicationCommands(clientId),
+                    { body: commands },
+                )
+
+                this.logger.info(`Successfully reloaded ${data.length} commands.`)
+            }
+
         } catch (err: any) {
+            this.logger.error('Failed refreshing commands.')
             this.logger.error(err.toString())
         }
     }
 
-    public async login() {
-        await this.client.login(discordBotToken)
+    public async login(token: string) {
+        await this.client.login(token)
     }
 }
 
